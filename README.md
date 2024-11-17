@@ -1,4 +1,5 @@
-# Tableau de Bord React & Next.js
+### Test technique Gwendolyne Bouchard
+# Civision Tableau de bord interactif en React & Next.js
 
 Ce projet est un tableau de bord interactif développé avec React et Next.js, conçu pour afficher des données dynamiques filtrées par plusieurs critères (saison, âge, niveau, compte, type de passe). 
 Les résultats sont présentés sous deux types de graphiques. De plus, le prix moyen de la meilleure partie est calculé en fonction de la catégorie choisie.
