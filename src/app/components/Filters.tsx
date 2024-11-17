@@ -16,7 +16,7 @@ const Filters: FC<FiltersProps> = ({ onFilterChange }) => {
         <option value="saison">de la saison</option>
         <option value="age">de l'age</option>
         <option value="niveau">du niveau</option>
-        <option value="compte">du type de compte</option>
+        <option value="compte">de l'existence d'un compte</option>
         <option value="passe">du type de passe</option>
       </select>
     </div>
