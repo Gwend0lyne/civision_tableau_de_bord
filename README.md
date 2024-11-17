@@ -30,8 +30,8 @@ Les résultats sont présentés sous deux types de graphiques. De plus, le prix 
 Clonez le repository et installez les dépendances :
 
 ```bash
-git clone https://github.com/votre-utilisateur/votre-repository.git
-cd votre-repository
+git clone https://github.com/Gwend0lyne/civision_tableau_de_bord.git
+cd civision_tableau_de_bord
 npm install
 ```
 
