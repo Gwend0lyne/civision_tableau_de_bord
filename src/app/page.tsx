@@ -1,101 +1,86 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import Filters from "../../src/app/components/Filters";
+import PriceDisplay from "../../src/app/components/PriceDisplay";
+import Charts from "../../src/app/components/Charts";
+
+interface DataItem {
+  id: number;       // Identifiant unique
+  saison: string;   // La saison (printemps, été, automne, hiver)
+  prix: number;     // Le prix
+  age: number;      // L'âge
+  niveau: string;   // Niveau (novice, moyen, pro)
+  compte: boolean;  // Indique si le compte est actif (true ou false)
+  passe: string;    // Type de passe (simple, double, illimité)
+}
+
+const Home = () => {
+  const [data, setData] = useState<DataItem[]>([]);
+  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
+  const [comparisonKey, setComparisonKey] = useState<string>("saison"); // Par défaut : "saison"
+  const [topCategory, setTopCategory] = useState<string | null>(null); // Meilleure catégorie
+  const [averagePrice, setAveragePrice] = useState<number | null>(null); // Prix moyen
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch("/database.json");
+      const result: DataItem[] = await response.json();
+      setData(result);
+      setFilteredData(result);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (comparisonKey && filteredData.length > 0) {
+      const grouped = filteredData.reduce((acc, item) => {
+        const key = item[comparisonKey as keyof DataItem];
+        if (!acc[key as string]) acc[key as string] = [];
+        acc[key as string].push(item.prix);
+        return acc;
+      }, {} as Record<string, number[]>);
+
+      // Trouver la catégorie avec le plus de ventes
+      const bestCategory = Object.entries(grouped).reduce(
+        (prev, curr) => (curr[1].length > prev[1].length ? curr : prev),
+        ["", [] as number[]]
+      );
+
+      setTopCategory(bestCategory[0]); // Nom de la meilleure catégorie
+      setAveragePrice(
+        bestCategory[1].reduce((sum, price) => sum + price, 0) /
+          bestCategory[1].length // Prix moyen
+      );
+    } else {
+      setTopCategory(null);
+      setAveragePrice(null);
+    }
+  }, [comparisonKey, filteredData]);
+
+  const handleFilterChange = (filterType: string) => {
+    setComparisonKey(filterType);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-background text-primary p-6">
+      <div id="title" className="flex items-center">
+        <img src="/logo.png" alt="Civision" id="logo" className="w-16 h-16 mr-4" />
+        <h1 className="text-3xl font-bold">TABLEAU DE BORD</h1>
+      </div>
+      <div id="ligne2" className="flex mt-6">
+        <Filters onFilterChange={handleFilterChange} />
+        <div className="ml-6">
+          <PriceDisplay
+            topCategory={topCategory}
+            averagePrice={averagePrice}
+            comparisonKey={comparisonKey}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      <Charts data={filteredData} comparisonKey={comparisonKey} />
     </div>
   );
-}
+};
+
+export default Home;
